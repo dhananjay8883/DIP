@@ -1,0 +1,231 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+#-----------------------
+
+# Read color image
+img = cv2.imread('varad.png')
+# Read grayscale image
+gray_img = cv2.imread('varad.png', 0)
+# Convert color image from BGR to RGB for correct display
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+# Plot both images
+plt.figure(figsize=(10, 4))
+#optional ahe varach
+#10x4 chi size lavali
+plt.subplot(1, 2, 1)
+#1row 2 col 1st image
+plt.imshow(img_rgb)
+plt.title('Color Image')
+plt.subplot(1, 2, 2)
+plt.imshow(gray_img, cmap='gray')
+plt.title('Grayscale Image')
+plt.tight_layout()
+plt.show()
+#-----------------------------------
+import cv2
+import matplotlib.pyplot as plt
+
+# Read the original image
+img = cv2.imread('varad.png')
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+# Resize the image to 200x200 pixels
+resized_img = cv2.resize(img, (400, 400))  # (width, height)
+resized_rgb = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
+
+# Display original and resized images side by side
+plt.figure(figsize=(10, 4))
+
+plt.subplot(1, 2, 1)
+plt.imshow(img_rgb)
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(resized_rgb)
+plt.title('Resized Image (200x200)')
+
+
+plt.tight_layout()
+plt.show()
+#-------------------------------------
+import cv2
+import matplotlib.pyplot as plt
+
+# Read the original image
+img = cv2.imread('varad.png')
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+# Rotate the image 90 degrees clockwise
+rotated_img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+rotated_rgb = cv2.cvtColor(rotated_img, cv2.COLOR_BGR2RGB)
+rotated_180=cv2.rotate(img,cv2.ROTATE_180)
+rotated_180_rgb=cv2.cvtColor(rotated_180,cv2.COLOR_BGR2RGB)
+
+# Display original and rotated images
+plt.figure(figsize=(10, 5))
+
+plt.subplot(1, 3, 1)
+plt.imshow(img_rgb)
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(1, 3, 2)
+plt.imshow(rotated_rgb)
+plt.title('Rotated 90° Clockwise')
+plt.axis('off')
+
+plt.subplot(1,3,3)
+plt.imshow(rotated_180_rgb)
+plt.title('rotated 180')
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+#--------------------------------------------
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Read the original image
+img = cv2.imread('varad.png')
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+# Read another image for addition
+img2 = cv2.imread('image2.png')
+img2_rgb = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
+
+# Add the images (make sure they are the same size)
+added_img = cv2.add(img, img2)  # Perform addition on BGR images, not RGB
+
+# Display the result
+plt.figure(figsize=(10, 5))
+
+plt.subplot(1, 3, 1)
+plt.imshow(img_rgb)
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(1, 3, 2)
+plt.imshow(img2_rgb)
+plt.title('Second Image')
+plt.axis('off')
+
+plt.subplot(1, 3, 3)
+plt.imshow(cv2.cvtColor(added_img, cv2.COLOR_BGR2RGB))  # Convert added image to RGB for displaying
+plt.title('Added Image')
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+#---------------------------------------
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Read the original image
+img = cv2.imread('varad.png')
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+# Calculate the histogram for each channel of the original image (img_rgb)
+#first argument as list of image seecond argument channel asti 0 for red and 1 for green etc 3rd argument is mask apn whole image ghetali ahe
+#4th argument number of intensity level for each channel apn 0 te 255 ghetalimhnun 256 5th is range of pixel intensity value
+hist_r = cv2.calcHist([img], [0], None, [256], [0, 256])  # Red channel
+hist_g = cv2.calcHist([img], [1], None, [256], [0, 256])  # Green channel
+hist_b = cv2.calcHist([img], [2], None, [256], [0, 256])  # Blue channel
+
+# Display the original image and the histogram
+plt.figure(figsize=(12, 6))
+
+# Display the original image
+plt.subplot(1, 2, 1)
+plt.imshow(img_rgb)
+plt.title('Original Image')
+plt.axis('off')
+
+# Plot the histograms for all channels in one graph
+plt.subplot(1, 2, 2)
+plt.plot(hist_r, color='red')
+plt.plot(hist_g, color='green')
+plt.plot(hist_b, color='blue')
+
+plt.title('Histogram for RGB Channels')
+plt.xlabel('Pixel Intensity')
+plt.ylabel('Frequency')
+
+
+plt.tight_layout()
+plt.show()
+
+#------------------------------------------
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Read the original image in grayscale
+img = cv2.imread('varad.png', cv2.IMREAD_GRAYSCALE)
+
+# Define the threshold value
+threshold_value = 127
+max_value = 255
+
+# Apply simple thresholding
+ret, thresholded_img = cv2.threshold(img, threshold_value, max_value, cv2.THRESH_BINARY)
+
+# Display the original and thresholded images
+plt.figure(figsize=(10, 5))
+
+plt.subplot(1, 2, 1)
+plt.imshow(img, cmap='gray')
+plt.title('Original Image (Grayscale)')
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(thresholded_img, cmap='gray')
+plt.title(f'Thresholded Image\nThreshold = {threshold_value}')
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+#-------------------------------------
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Read the original image
+img = cv2.imread('varad.png')
+
+# Convert to grayscale for simplicity
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#or  cv2.imread img ,0 for grayscale
+
+# Create an empty image with the same dimensions as the original image
+noise = np.zeros_like(img_gray)
+
+# Define the mean and standard deviation for the noise
+mean = 0
+stddev = 100
+
+# Add Gaussian noise to the image
+cv2.randn(noise, mean, stddev)
+
+# Add the noise to the original image
+noisy_img = cv2.add(img_gray, noise)
+
+# Display the original and noisy images
+plt.figure(figsize=(10, 5))
+
+plt.subplot(1, 2, 1)
+plt.imshow(img_gray, cmap='gray')
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(noisy_img, cmap='gray')
+plt.title('Image with Gaussian Noise')
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+#---------------------------------------------------

@@ -1,0 +1,68 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+img = cv2.imread('varad.png')
+img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+L = 255
+negative_img = L - 1 - img_gray
+plt.figure(figsize=(10, 5))
+
+plt.subplot(1, 2, 1)
+plt.imshow(img_gray, cmap='gray')
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(negative_img, cmap='gray')
+plt.title('Negative Image')
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+#--------------------------------------------------------
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+# Read the image and convert to grayscale
+img = cv2.imread('varad.png', cv2.IMREAD_GRAYSCALE)
+# Apply log transformation: S = c * log(1 + r)
+c = 255 / np.log(1 + np.max(img))
+log_transformed_img = c * np.log(1 + img)
+# Convert back to uint8
+log_transformed_img = np.uint8(np.clip(log_transformed_img, 0, 255))
+#clip ensure karat ki 0 to 255 aslya pahije value
+# Display the original and log-transformed images
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1), plt.imshow(img, cmap='gray'), plt.title('Original Image')
+plt.subplot(1, 2, 2), plt.imshow(log_transformed_img, cmap='gray'), plt.title('Log Transformed Image')
+plt.tight_layout()
+plt.show()
+#------------------------------------------------
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+def gamma_transform(image_path, gamma):
+    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+
+    # Normalize image to range [0, 1]
+    img_normalized = img / 255.0
+
+    gamma_corrected = np.power(img_normalized, gamma)
+
+    gamma_corrected = np.uint8(gamma_corrected * 255)
+
+    plt.figure(figsize=(10, 5))
+    plt.subplot(1, 2, 1), plt.imshow(img, cmap='gray'), plt.title('Original Image')
+    plt.subplot(1, 2, 2), plt.imshow(gamma_corrected, cmap='gray'), plt.title(f'Gamma = {gamma}')
+    plt.tight_layout()
+    plt.show()
+
+# Example usage
+gamma_transform('varad.png', 0.5)
+gamma_transform('varad.png',2.0)
+
+#------------------------------------------------------------

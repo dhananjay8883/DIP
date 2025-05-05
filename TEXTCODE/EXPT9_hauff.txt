@@ -1,0 +1,164 @@
+from collections import Counter
+
+# Define a class to build the tree structure of Huffman coding
+class NodeTree(object):
+    def __init__(self, left=None, right=None):
+        self.left = left
+        self.right = right
+
+    def children(self):
+        return self.left, self.right
+
+    def __str__(self):
+        return str(self.left) + ' ' + str(self.right)
+
+# Recursive function to generate the Huffman code from the tree
+def huffman_code_tree(node, binString=''):
+    if type(node) is str:
+        return {node: binString}  # If leaf node, assign binary string
+    (l, r) = node.children()
+    d = dict()
+    d.update(huffman_code_tree(l, binString + '1'))  # Left gets '1'
+    d.update(huffman_code_tree(r, binString + '0'))  # Right gets '0'
+    return d
+
+# Function to construct the Huffman tree from nodes
+def make_tree(nodes):
+    while len(nodes) > 1:
+        # Take the two nodes with the lowest probability
+        (key1, c1) = nodes[-1]
+        (key2, c2) = nodes[-2]
+        nodes = nodes[:-2]  # Remove last two nodes
+        node = NodeTree(key1, key2)  # Create a new node from them
+        nodes.append((node, c1 + c2))  # Add new node back
+        # Sort again by frequency in descending order
+        nodes = sorted(nodes, key=lambda x: x[1], reverse=True)
+    return nodes[0][0]  # Return the root of the Huffman tree
+
+# Sample grayscale image matrix (4x4)
+matrix = [
+    [3, 3, 3, 2],
+    [2, 3, 3, 3],
+    [3, 2, 2, 2],
+    [2, 1, 1, 0]
+]
+
+# Total number of pixels in matrix
+total_pixels = len(matrix) * len(matrix[0])
+
+# Count frequency of each pixel value (converted to string)
+freq = dict(Counter([str(pixel) for row in matrix for pixel in row]))
+print("Pixel Frequencies:", freq)
+
+# Calculate probability of each pixel value
+probability = {}
+for pixel in freq:
+    probability[pixel] = freq[pixel] / total_pixels
+print("Pixel Probabilities:", probability)
+
+# Create list of (pixel, probability) tuples and sort in descending order
+nodes = [(k, v) for k, v in probability.items()]
+nodes = sorted(nodes, key=lambda x: x[1], reverse=True)
+
+# Build Huffman tree from nodes
+node = make_tree(nodes)
+
+# Generate Huffman encoding dictionary
+encoding = huffman_code_tree(node)
+print("Huffman Encoding:", encoding)
+
+# Calculate average bits per pixel
+mean_bits_per_pixel = 0
+for symbol in encoding:
+    bit_length = len(encoding[symbol])
+    mean_bits_per_pixel += bit_length * probability[symbol]
+    print(f'Pixel {symbol} : Code = {encoding[symbol]} (length = {bit_length})')
+
+# Assume original image uses 2 bits per pixel (because max value = 3)
+img_size_before_compression = 2  # bits per pixel (original)
+
+# Calculate compression ratio
+compression_ratio = img_size_before_compression / mean_bits_per_pixel
+print('Compression Ratio:', compression_ratio)
+#---------------------------------------------------------------------------------------------------------
+
+#same code fkt technique to assign the 1 and 0 is opposite
+from collections import Counter
+
+# Define a simple class for tree nodes used in Huffman tree
+class Node:
+    def __init__(self, symbol=None, freq=0):
+        self.symbol = symbol    # Pixel value (as a string)
+        self.freq = freq        # Probability/frequency
+        self.left = None        # Left child
+        self.right = None       # Right child
+
+# Recursive function to generate Huffman codes from the tree
+def generate_codes(node, code='', code_map={}):
+    if node is None:
+        return
+    if node.symbol is not None:     # If it's a leaf node (symbol present)
+        code_map[node.symbol] = code
+        return
+    generate_codes(node.left, code + '0', code_map)   # Left branch = 0
+    generate_codes(node.right, code + '1', code_map)  # Right branch = 1
+    return code_map
+
+# Build the Huffman tree using frequencies
+def build_huffman_tree(freq_dict):
+    # Create initial list of nodes from frequencies
+    nodes = [Node(symbol=s, freq=f) for s, f in freq_dict.items()]
+
+    # Combine nodes until only the root remains
+    while len(nodes) > 1:
+        # Sort nodes by ascending frequency
+        nodes.sort(key=lambda n: n.freq)
+        # Pick two nodes with smallest frequency
+        left = nodes.pop(0)
+        right = nodes.pop(0)
+        # Combine them into a new parent node
+        parent = Node(freq=left.freq + right.freq)
+        parent.left = left
+        parent.right = right
+        nodes.append(parent)
+
+    return nodes[0]  # Return root node of the tree
+
+# ---------- MAIN CODE FOR JUPYTER ----------
+
+# Step 1: Example 4x4 grayscale image matrix
+matrix = [
+    [3, 3, 3, 2],
+    [2, 3, 3, 3],
+    [3, 2, 2, 2],
+    [2, 1, 1, 0]
+]
+
+# Step 2: Flatten matrix and count frequencies
+flat = [str(pixel) for row in matrix for pixel in row]  # Convert to list of strings
+total = len(flat)  # Total pixels
+
+# Step 3: Frequency and Probability calculation
+freq = dict(Counter(flat))
+prob = {k: v / total for k, v in freq.items()}
+
+print("Frequencies:", freq)
+print("Probabilities:", prob)
+
+# Step 4: Build Huffman tree
+tree_root = build_huffman_tree(prob)
+
+# Step 5: Generate Huffman codes
+codes = generate_codes(tree_root)
+print("Huffman Codes:", codes)
+
+# Step 6: Calculate mean bits per pixel using code lengths and probabilities
+mean_bits = sum(len(codes[symbol]) * prob[symbol] for symbol in codes)
+
+# Step 7: Compression ratio (original = 2 bits per pixel)
+original_bits_per_pixel = 2
+compression_ratio = original_bits_per_pixel / mean_bits
+
+print("Mean bits per pixel:", mean_bits)
+print("Compression Ratio:", compression_ratio)
+#---------------------------------------------------------------------------

@@ -1,0 +1,175 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+image_path = "varad.png"
+image = cv2.imread(image_path,cv2.IMREAD_GRAYSCALE)
+
+
+# Compute histogram before equalization
+hist_before = cv2.calcHist([image], [0], None, [256], [0, 256])
+# Apply Histogram Equalization
+equalized_image = cv2.equalizeHist(image)
+
+# Compute histogram after equalization
+hist_after = cv2.calcHist([equalized_image], [0], None, [256], [0, 256])
+
+# Plot results
+
+plt.figure(figsize=(12, 8))
+
+plt.subplot(2, 2, 1)
+plt.imshow(image, cmap='gray')
+plt.title("Original Low Contrast Image")
+plt.axis("off")
+
+plt.subplot(2, 2, 2)
+plt.plot(hist_before, color='black')
+plt.title("Histogram Before Equalization")
+plt.xlabel("Pixel Value")
+plt.ylabel("Frequency")
+
+plt.subplot(2, 2, 3)
+plt.imshow(equalized_image, cmap='gray')
+plt.title("Equalized Image (Enhanced Contrast)")
+plt.axis("off")
+
+plt.subplot(2, 2, 4)
+plt.plot(hist_after, color='black')
+plt.title("Histogram After Equalization")
+plt.xlabel("Pixel Value")
+plt.ylabel("Frequency")
+
+plt.tight_layout()
+plt.show()
+
+#------------------------------------------------------------------------------------
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the grayscale image
+image_name = "varad.png"
+image = cv2.imread(image_name, cv2.IMREAD_GRAYSCALE)
+
+# Compute histogram
+hist = cv2.calcHist([image], [0], None, [256], [0, 256])
+
+# Compute brightness and contrast
+brightness = np.mean(image)
+contrast = image.std()
+
+# Classification
+if brightness < 85:
+    category = "Dark Image"
+elif brightness > 170:
+    category = "Light Image"
+elif contrast < 40:
+    category = "Low Contrast Image"
+else:
+    category = "High Contrast Image"
+
+# Display results
+plt.figure(figsize=(12, 5))
+
+# Show image
+plt.subplot(1, 2, 1)
+plt.imshow(image, cmap='gray')
+plt.title(f"Grayscale Image: {image_name}")
+plt.axis("off")
+
+# Show histogram
+plt.subplot(1, 2, 2)
+plt.plot(hist, color='black')
+plt.title("Histogram")
+plt.xlabel("Pixel Value")
+plt.ylabel("Frequency")
+plt.tight_layout()
+plt.show()
+
+# Print analysis
+print(f"Image: {image_name}")
+print(f"Brightness: {brightness:.2f}")
+#.2f mhnje 2 digit after point and f mhnje floating number ani : for format specifier
+print(f"Contrast: {contrast:.2f}")
+print(f"Image Classification: {category}")
+#-----------------------------------------------------------------------------------------------------
+
+# Import necessary libraries
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+
+# Function to perform histogram equalization manually
+
+def histogram_equalization(image):
+    # Step 1: Compute histogram (counts of each pixel value)
+    histogram = np.zeros(256, dtype=int)
+    for i in range(image.shape[0]):             # loop over rows
+        for j in range(image.shape[1]):         # loop over columns
+            histogram[image[i, j]] += 1         # increment the count of that pixel intensity
+
+    # Step 2: Compute cumulative distribution function (CDF)
+    cdf = np.zeros(256, dtype=int)
+    cdf[0] = histogram[0]
+    for i in range(1, 256):
+        cdf[i] = cdf[i - 1] + histogram[i] # cumulative sum of histogram
+
+    # Step 3: Normalize the CDF to scale it between 0 and 255
+    equalized_histogram = np.round((cdf / np.sum(histogram)) * 255)
+
+    # Step 4: Map original pixel values using the normalized CDF
+    equalized_image = np.zeros_like(image)
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            equalized_image[i, j] = equalized_histogram[image[i, j]]  # remap pixel intensity
+
+    # Step 5: Compute histogram of equalized image
+    equalized_histogram = np.zeros(256, dtype=int)
+    for i in range(equalized_image.shape[0]):
+        for j in range(equalized_image.shape[1]):
+            equalized_histogram[equalized_image[i, j]] += 1  # count intensities again after equalization
+
+    return equalized_image, equalized_histogram
+
+# Load the image in grayscale mode
+image = cv2.imread('varad.png', cv2.IMREAD_GRAYSCALE)
+
+# Call the histogram equalization function
+equalized_image, equalized_histogram = histogram_equalization(image)
+
+# Display original and equalized images using matplotlib
+plt.figure(figsize=(10, 4))
+
+plt.subplot(1, 2, 1)
+plt.imshow(image, cmap='gray')
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(equalized_image, cmap='gray')
+plt.title('Equalized Image')
+plt.axis('off')
+
+plt.show()
+
+# Plot the histogram of the original image
+plt.figure()
+hist, bins = np.histogram(image.ravel(), 256, [0, 256])
+plt.plot(hist, color='blue')
+plt.title('Histogram of Original Image')
+plt.xlabel('Pixel Intensity')
+plt.ylabel('Frequency')
+plt.grid(True)
+plt.show()
+
+# Plot the histogram of the equalized image
+plt.figure()
+plt.bar(range(256), equalized_histogram, color='green')
+plt.title('Histogram of Equalized Image')
+plt.xlabel('Pixel Intensity')
+plt.ylabel('Frequency')
+plt.grid(True)
+plt.show()
+#-------------------------------------------------------------------------------------------------------------------------

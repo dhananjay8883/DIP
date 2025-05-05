@@ -1,0 +1,202 @@
+#Yes, this code is a manual implementation of JPEG-like image compression and decompression using DCT on 8*8  image
+import numpy as np
+
+I = np.array([154, 123, 123, 123, 123, 123, 123, 136, 192, 180, 136, 154, 154, 154, 136, 110, 254, 198, 154, 154, 180, 154, 123, 123, 239, 180, 136, 180, 180, 166, 123, 123, 180, 154, 136, 167, 166, 149, 136, 136, 128, 136, 123, 136, 154, 180, 198, 154, 123, 105, 110, 149, 136, 136, 180, 166, 110, 136, 123, 123, 123, 136, 154, 136])
+
+#JPEG compression shifts the pixel values from [0, 255] to [-128, 127] for better DCT performance.
+M = I - 128
+T = np.zeros((8, 8))
+
+for i in range(8):
+    for j in range(8):
+        if i == 0:
+            T[i, j] = np.sqrt(1/8)
+        else:
+            T[i, j] = np.sqrt(2/8) * np.cos(((2*j)+1)*i*np.pi/16)
+
+D = np.dot(np.dot(T, M.reshape((8, 8))), T.T)
+#Applies 2D DCT: D = T × M × Tᵀ
+#cinvert spatial domain M to frequency domain F
+#ha standard matrix ahe q 
+Q = np.array([16, 11, 10, 16, 24, 40, 51, 61, 12, 12, 14, 19, 26, 58, 60, 55, 14, 13, 16, 24, 40, 57, 69, 56, 14, 17, 22, 29, 51, 87, 80, 62, 18, 22, 37, 56, 68, 109, 103, 77, 24, 35, 55, 64, 81, 104, 113, 92, 49, 64, 78, 87, 103, 121, 120, 101, 72, 92, 95, 98, 112, 100, 103, 99])
+#JPEG uses a quantization matrix to reduce precision of DCT coefficients.
+#The Q matrix is an 8×8 standard JPEG quantization matrix for luminance (brightness). It is used during the compression stage of JPEG encoding to reduce less important frequency components—especially higher-frequency ones which the human eye is less sensitive to.
+Q = Q.reshape((8, 8))
+C = np.round(D/Q)
+#the Q matrix is used to divide each DCT coefficient this above step is used to reduces the precision of higher-frequency components 
+R = Q*C
+#Approximates original DCT coefficients by multiplying back with Q.
+N = np.round(np.dot(np.dot(T.T, R), T) + 128)
+#Applies Inverse DCT: Tᵀ × R × T + 128
+#convert again frequency domain to spatial domain
+
+print("M",M)
+print("\n")
+
+print("Q",Q)
+print("\n")
+
+print("D",D)
+print("\n")
+
+print("C",C)
+print("\n")
+
+print("R",R)
+print("\n")
+
+print("I: ", I)
+print("\n")
+
+print("N: ", N)
+
+
+#--------------------------------------------------------------------------------------------
+
+import cv2                      # OpenCV for image reading and DCT
+import numpy as np              # NumPy for array operations
+import matplotlib.pyplot as plt # Matplotlib for image visualization
+
+# Load the image in grayscale mode
+img = cv2.imread("house.png", cv2.IMREAD_GRAYSCALE)
+
+# Check if the image was loaded successfully
+if img is None:
+    print("Error: Could not load image.")
+else:
+    # Get original image dimensions
+    x, y = img.shape
+
+    # Calculate required padding so dimensions become a multiple of 8
+    pad_x = (8 - x % 8) % 8
+    pad_y = (8 - y % 8) % 8
+
+    # Pad the image with zeros if needed
+    padded_img = np.pad(img, ((0, pad_x), (0, pad_y)), mode='constant', constant_values=0)
+
+    # Convert image to float32 for DCT computation and center pixel values around zero
+    padded_img = padded_img.astype(np.float32)
+
+    # Update dimensions after padding
+    x, y = padded_img.shape
+
+    # Initialize empty array to store DCT-transformed values
+    dct_transformed = np.zeros_like(padded_img)
+
+    # Set block size (8x8) as per JPEG standard
+    block_size = 8
+
+    # Loop over the image in 8x8 blocks and apply DCT
+    for i in range(0, x, block_size):
+        for j in range(0, y, block_size):
+            # Extract 8x8 block
+            block = padded_img[i:i+block_size, j:j+block_size]
+
+            # Apply DCT after centering values by subtracting 128
+            dct_block = cv2.dct(block - 128)
+
+            # Store the DCT block back in the output image
+            dct_transformed[i:i+block_size, j:j+block_size] = dct_block
+
+    # Define the standard JPEG quantization matrix for luminance
+    Q = np.array([
+        [16,11,10,16,24,40,51,61],
+        [12,12,14,19,26,58,60,55],
+        [14,13,16,24,40,57,69,56],
+        [14,17,22,29,51,87,80,62],
+        [18,22,37,56,68,109,103,77],
+        [24,35,55,64,81,104,113,92],
+        [49,64,78,87,103,121,120,101],
+        [72,92,95,98,112,100,103,99]
+    ], dtype=np.float32)
+
+    # Initialize array to store quantized DCT coefficients
+    quantized_dct = np.zeros_like(dct_transformed)
+
+    # Loop again over 8x8 blocks to perform quantization
+    for i in range(0, x, block_size):
+        for j in range(0, y, block_size):
+            # Extract 8x8 DCT block
+            block = dct_transformed[i:i+block_size, j:j+block_size]
+
+            # Quantize by dividing with Q and rounding
+            quantized_block = np.round(block / Q)
+
+            # Store quantized block
+            quantized_dct[i:i+block_size, j:j+block_size] = quantized_block
+
+    # Plot original image
+    plt.figure(figsize=(15, 5))
+    
+    plt.subplot(1, 3, 1)
+    plt.imshow(img, cmap='gray')
+    plt.title("Original Image")
+    plt.axis('off')
+
+    # Plot DCT-transformed image (log-scaled for better visibility)
+    plt.subplot(1, 3, 2)
+    plt.imshow(np.log(np.abs(dct_transformed) + 1), cmap='gray')
+    plt.title("DCT Transformed")
+    plt.axis('off')
+
+    # Plot Quantized DCT image (also log-scaled)
+    plt.subplot(1, 3, 3)
+    plt.imshow(np.log(np.abs(quantized_dct) + 1), cmap='gray')
+    plt.title("Quantized DCT")
+    plt.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+#--------------------------------------------------------------------------------------------
+
+
+# Initialize array to store dequantized DCT coefficients
+dequantized_dct = np.zeros((x, y), dtype=np.float32)
+
+# Loop through image in 8x8 blocks to perform dequantization
+for i in range(0, x, block_size):
+    for j in range(0, y, block_size):
+        # Multiply each quantized coefficient with the quantization matrix Q
+        dequantized_dct[i:i+block_size, j:j+block_size] = (
+            quantized_dct[i:i+block_size, j:j+block_size] * Q
+        )
+
+# Initialize an array to store the reconstructed image after inverse DCT
+reconstructed_image = np.zeros((x, y), dtype=np.float32)
+
+# Apply Inverse DCT block by block
+for i in range(0, x, block_size):
+    for j in range(0, y, block_size):
+        # Perform IDCT and re-add the 128 offset that was subtracted earlier
+        block = dequantized_dct[i:i+block_size, j:j+block_size]
+        reconstructed_block = cv2.idct(block) + 128
+        reconstructed_image[i:i+block_size, j:j+block_size] = reconstructed_block
+
+# Clip values to valid pixel range [0, 255] and convert to uint8
+reconstructed_image = np.clip(reconstructed_image, 0, 255).astype(np.uint8)
+
+# Plotting the original, quantized DCT, and reconstructed images
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(15, 5))
+
+plt.subplot(1, 3, 1)
+plt.imshow(img, cmap="gray")
+plt.title("Original Image")
+plt.axis('off')
+
+plt.subplot(1, 3, 2)
+plt.imshow(np.log(np.abs(quantized_dct) + 1), cmap="gray")
+plt.title("Quantized DCT (Log Scaled)")
+plt.axis('off')
+
+plt.subplot(1, 3, 3)
+plt.imshow(reconstructed_image, cmap="gray")
+plt.title("Reconstructed Image (IDCT)")
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+#----------------------------------------------------------------------------------------------------------------
+

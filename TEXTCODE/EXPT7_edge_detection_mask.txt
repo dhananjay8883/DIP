@@ -1,0 +1,154 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+def roberts(img):
+    # Define Roberts kernels
+    kernel1 = np.array([[1, 0], [0, -1]], dtype=np.float32)
+    kernel2 = np.array([[0, 1], [-1, 0]], dtype=np.float32)
+
+    # Apply kernels to image
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gx = cv2.filter2D(img, -1, kernel1)
+    gy = cv2.filter2D(img, -1, kernel2)
+    mag = np.abs(gx) + np.abs(gy)
+    mag = np.uint8(mag)
+
+    return gx, gy, mag
+
+# Load image
+image = cv2.imread('house.png')
+
+# Apply Roberts edge detection
+gx_rob, gy_rob, rob_det = roberts(image)
+
+# Display results using matplotlib
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 3, 1)
+plt.imshow(gx_rob, cmap='gray')
+plt.title('X-axis Component')
+plt.axis('off')
+
+plt.subplot(1, 3, 2)
+plt.imshow(gy_rob, cmap='gray')
+plt.title('Y-axis Component')
+plt.axis('off')
+
+plt.subplot(1, 3, 3)
+plt.imshow(rob_det, cmap='gray')
+plt.title('Roberts Edge Magnitude')
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+#-------------------------------------------------------------------------------------------------------------------
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+def prewitt(image):
+    # Define Prewitt kernels
+    kernel_x = np.array([[-1, 0, 1], 
+                         [-1, 0, 1], 
+                         [-1, 0, 1]], dtype=np.float32)
+    
+    kernel_y = np.array([[-1, -1, -1], 
+                         [0,  0,  0], 
+                         [1,  1,  1]], dtype=np.float32)
+    
+    # Convert to grayscale
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply Prewitt kernels
+    x_edges = cv2.filter2D(image, -1, kernel_x)
+    y_edges = cv2.filter2D(image, -1, kernel_y)
+    
+    # Combine both edges
+    edges = np.abs(x_edges) + np.abs(y_edges)
+    edges = np.uint8(edges)
+
+    return x_edges, y_edges, edges
+
+# Load image
+image = cv2.imread('house.png')
+
+# Apply Prewitt operator
+x, y, edges = prewitt(image)
+
+# Display results using matplotlib
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 3, 1)
+plt.imshow(x, cmap='gray')
+plt.title('X-axis Component')
+plt.axis('off')
+
+plt.subplot(1, 3, 2)
+plt.imshow(y, cmap='gray')
+plt.title('Y-axis Component')
+plt.axis('off')
+
+plt.subplot(1, 3, 3)
+plt.imshow(edges, cmap='gray')
+plt.title('Prewitt Edge Magnitude')
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+#------------------------------------------------------------------
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+def sobel(image):
+    # Define Sobel kernels
+    kernel_x = np.array([[-1, 0, 1],
+                         [-2, 0, 2],
+                         [-1, 0, 1]], dtype=np.float32)
+    
+    kernel_y = np.array([[-1, -2, -1],
+                         [0,  0,  0],
+                         [1,  2,  1]], dtype=np.float32)
+    
+    # Convert image to grayscale
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply Sobel kernels
+    x_edges = cv2.filter2D(image, -1, kernel_x)
+    y_edges = cv2.filter2D(image, -1, kernel_y)
+    
+    # Combine edge components
+    edges = np.abs(x_edges) + np.abs(y_edges)
+    edges = np.uint8(edges)
+
+    return x_edges, y_edges, edges
+
+# Load the image
+image = cv2.imread('house.png')
+
+# Apply Sobel edge detection
+x, y, edges = sobel(image)
+
+# Display results using matplotlib
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 3, 1)
+plt.imshow(x, cmap='gray')
+plt.title('X-axis Component')
+plt.axis('off')
+
+plt.subplot(1, 3, 2)
+plt.imshow(y, cmap='gray')
+plt.title('Y-axis Component')
+plt.axis('off')
+
+plt.subplot(1, 3, 3)
+plt.imshow(edges, cmap='gray')
+plt.title('Sobel Edge Magnitude')
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+#------------------------------------------------------------------------------------------------

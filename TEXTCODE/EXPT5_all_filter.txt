@@ -1,0 +1,160 @@
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+
+# Load image in grayscale
+img = cv2.imread('varad1.png', cv2.IMREAD_GRAYSCALE)
+
+# Create an empty image to store the filtered result
+filtered_img = np.zeros_like(img)
+
+# Define kernel for the averaging filter
+kernel = np.ones((3, 3), dtype=np.float32) / 9.0
+#Creates a 3×3 averaging kernel (also called a filter or mask).
+#Each value is 1/9, so the total sum of the kernel is 1.
+
+# Pad the input image with zeros to handle border pixels
+padded_img = np.pad(img, ((1,1), (1,1)), mode='constant')
+#(1,1) for top&bottom and left &rigth and mode constant bydefault zero asto
+#pixel1 wide border on all side with 0
+# Apply the averaging filter
+for i in range(img.shape[0]):
+    for j in range(img.shape[1]):
+        filtered_img[i, j] = np.sum(kernel * padded_img[i:i+3, j:j+3])
+#ak line madhech pur lihun takal ahe tyani
+
+# Display the original and filtered images using matplotlib
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+plt.imshow(img, cmap='gray')
+plt.title("Original Image")
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(filtered_img, cmap='gray')
+plt.title("Averaging 3x3 Filter")
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+#---------------------------------------------------------------------------
+
+import numpy as np
+import cv2
+from matplotlib import pyplot as plt
+
+# Load image in grayscale
+img = cv2.imread('varad1.png', cv2.IMREAD_GRAYSCALE)
+
+# Create an empty image to store the filtered result
+filtered_img = np.zeros_like(img, dtype=np.uint8)
+
+# Define kernel for the weighted averaging filter (Gaussian-like)
+kernel = np.array([[2, 4, 2],
+                   [4, 8, 4],
+                   [2, 4, 2]], dtype=np.float32) / 32.0
+
+# Pad the input image with zeros to handle borders
+padded_img = np.pad(img, ((1, 1), (1, 1)), mode='constant')
+
+# Apply the weighted average filter
+for i in range(img.shape[0]):
+    for j in range(img.shape[1]):
+        region = padded_img[i:i+3, j:j+3]
+        filtered_val = np.sum(region * kernel)
+        filtered_img[i, j] = np.clip(filtered_val, 0, 255)  # ensure valid pixel range
+
+# Show original and filtered image using matplotlib
+plt.figure(figsize=(12, 5))
+
+plt.subplot(1, 2, 1)
+plt.imshow(img, cmap='gray')
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(filtered_img, cmap='gray')
+plt.title('Weighted Average Filter')
+plt.axis('off')
+
+plt.show()
+#----------------------------------------------------------------------------------------------------------
+
+import numpy as np
+import cv2
+from matplotlib import pyplot as plt
+
+# Load image in grayscale
+img = cv2.imread('varad1.png', cv2.IMREAD_GRAYSCALE)
+
+# Create an empty image to store the filtered result
+filtered_img = np.zeros_like(img, dtype=np.uint8)
+
+# Define kernel for the smoothing filter 
+kernel = np.array([[1, 2, 1],
+                   [2, 4, 2],
+                   [1, 2, 1]], dtype=np.float32) / 16.0
+
+# Pad the input image with zeros to handle border pixels
+padded_img = np.pad(img, ((1, 1), (1, 1)), mode='constant')
+
+# Apply the smoothing filter to each pixel in the image
+for i in range(img.shape[0]):
+    for j in range(img.shape[1]):
+        filtered_val = np.sum(kernel * padded_img[i:i+3, j:j+3])
+        filtered_img[i, j] = np.clip(filtered_val, 0, 255)  # ensure valid pixel range
+#simple change in 
+
+# Display original and filtered image using matplotlib
+plt.figure(figsize=(12, 5))
+
+plt.subplot(1, 2, 1)
+plt.imshow(img, cmap='gray')
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(filtered_img, cmap='gray')
+plt.title('Weighted 3x3 Filter')
+plt.axis('off')
+
+plt.show()
+#----------------------------------------------------------------------------------------------------------------------------
+
+import numpy as np
+import cv2
+from matplotlib import pyplot as plt
+
+# Load the image in grayscale
+img = cv2.imread('varad2.png', cv2.IMREAD_GRAYSCALE)
+
+# Kernel size for median filter
+k_size = 3
+p_size = k_size // 2
+
+# Create an empty output image
+output = np.zeros_like(img, dtype=np.uint8)
+
+# Apply median filter manually
+#hi khalacha for loop cha meaning ->Loops over all pixels excluding the border
+for i in range(p_size, img.shape[0] - p_size):
+    for j in range(p_size, img.shape[1] - p_size):
+        window = img[i - p_size:i + p_size + 1, j - p_size:j + p_size + 1]
+        median = np.median(window)
+        output[i, j] = median
+#ith zero index nahi ahe mhnun te as ahe window
+# Show original and filtered images using matplotlib
+plt.figure(figsize=(12, 5))
+
+plt.subplot(1, 2, 1)
+plt.imshow(img, cmap='gray')
+plt.title('Original Image (possibly noisy)')
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(output, cmap='gray')
+plt.title('Median Filtered Image')
+plt.axis('off')
+
+plt.show()
+#------------------------------------------------------------------------------------------------
